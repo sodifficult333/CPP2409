@@ -65,7 +65,7 @@ int main() {
 
 //가로, 세로, 대각선이 같으면 종료
         int m = 0; //가로줄 or 세로줄 or 대각선 검사 변수
-        bool exit = true; //공백 검사기 (true = 공백이 없음 / false = 공백이 있음)
+        bool exit = true; //공백 검사기 (true = 공백이 없음 - 종료 / false = 공백이 있음 - 진행)
         for(int n = 0; n < numCell; n++) {
             if(board[n][m] == currentUser && board[n][m+1] == currentUser && board[n][m+2] == currentUser) { //가로가 같을 시 승리
                 cout << currentUser << " 승리" << endl;
@@ -86,15 +86,15 @@ int main() {
 //모든 칸이 찼으면 종료
         for(int n = 0; n < numCell; n++) {
             for(int m = 0; m < numCell; m++) {
-                if(board[n][m] == ' ') { //모든 칸을 공백이 있나 검사
+                if(board[n][m] == ' ') { //모든 칸에 대해 공백 검사
                     exit = false; //공백이 있을 시 false
                     break;
                 }
             }
-            if (!exit) break; //공백이 있을 시 검사 종료
+            if (!exit) break; //공백이 있을 시 break
         }
 
-        if(exit) {
+        if(exit) { //공백이 없을 시 실행
             cout << "칸이 부족하여 종료";
             return 0;
         }
