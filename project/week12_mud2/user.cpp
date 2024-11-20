@@ -2,14 +2,14 @@
 
 /* 함수 정의 */
 // Print 함수 : 각 상황에 맞는 메세지 출력 + 남은 HP를 반환
-int User::print() {
+int User::Print() {
 	DecreaseHP(1); // 움직일 때마다 HP 1 감소
 	switch(map[user_y][user_x]) { // col, row 순서
 		case 0: // 0은 빈 공간, 1은 아이템, 2는 적, 3은 포션, 4는 목적지
 			cout << "아무것도 없었습니다." << endl << endl;
 			break;
 		case 1:
-			itemCnt(); // 아이템 발견하면 1개씩 증가
+			ItemCnt(); // 아이템 발견하면 1개씩 증가
 			cout << "아이템을 획득했습니다. 현재 획득한 아이템 개수: " << user_item << endl << endl;
 			break;
 		case 2:
@@ -32,18 +32,24 @@ int User::print() {
 bool User::CheckUser() {
 	bool b = true;
 	if (user_hp <= 0) {
-		cout << "실패";
+		cout << "[실패] 사유: ";
 		b = false;
 	}
 	return b;
 }
 
 // 지도와 사용자 위치 출력하는 함수
-void User::displayMap() {
-	for (int i = 0; i < mapY; i++) {
-		for (int j = 0; j < mapX; j++) {
-			if (i == user_y && j == user_x) {
-				cout << " USER |"; // 양 옆 1칸 공백
+void User::DisplayMap(User& other_user) {
+	for (int i = 0; i < MAPY; i++) {
+		for (int j = 0; j < MAPX; j++) {
+			if (i == user_y && j == user_x && i == other_user.user_y && j == other_user.user_x) {
+				cout << " W  M |"; // 두 유저가 같이 있을 경우
+			}
+			else if (i == user_y && j == user_x) {
+				cout << "   M  |"; // 마법사일 경우
+			}
+			else if(i == other_user.user_y && j == other_user.user_x) {
+				cout << "   W  |"; // 전사일 경우
 			}
 			else {
 				int posState = map[i][j];
@@ -72,9 +78,9 @@ void User::displayMap() {
 }
 
 // 이동하려는 곳이 유효한 좌표인지 체크하는 함수
-bool User::checkXY(int user_x, int user_y) {
+bool User::CheckXY(int user_x, int user_y) {
 	bool checkFlag = false;
-	if (user_x >= 0 && user_x < mapX && user_y >= 0 && user_y < mapY) {
+	if (user_x >= 0 && user_x < MAPX && user_y >= 0 && user_y < MAPY) {
 		checkFlag = true;
 	}
 	else {
@@ -84,7 +90,7 @@ bool User::checkXY(int user_x, int user_y) {
 }
 
 // 유저의 위치가 목적지인지 체크하는 함수
-bool User::checkGoal() {
+bool User::CheckGoal() {
 	// 목적지 도착하면
 	if (map[user_y][user_x] == 4) {
 		return true;
@@ -107,27 +113,28 @@ int User::GetHP() {
     return user_hp;
 }
 
-// hp = 20, item = 0, user_x = 0, user_y = 0 으로 설정하며 생성하는 생성자
-User::User() : user_hp(20), user_item(0), user_x(0), user_y(0) {}
+// hp = 20, item = 0으로 설정하며 생성하는 생성자
+User::User() : user_hp(20), user_item(0) {}
 
 // 아이템 먹은 횟수를 저장하는 변수
-int User::itemCnt() {
+int User::ItemCnt() {
 	user_item++;
 	return user_item;
 }
 
 // 각 클래스마다 doAttack함수 구현
-void User::doAttack() {
+void User::DoAttack() {
 	cout << "공격합니다." << endl;
 }
-void Magician::doAttack() { // 재정의
+void Magician::DoAttack() { // 재정의
 	cout << "마법 사용" << endl;
 }
-void Warrior::doAttack() { // 재정의
+void Warrior::DoAttack() { // 재정의
 	cout << "베기 사용" << endl;
 }
 
-bool User::instruction(User& user) {
+// 반복되는 코드를 함수화
+bool User::Instruction(User& user, User& other_user) {
 	// 사용자의 입력을 저장할 변수
 	string user_input = "";
 	cout << "[현재 HP: " << user.GetHP() << "]" << endl;
@@ -136,43 +143,43 @@ bool User::instruction(User& user) {
 
 	if (user_input == "w") {
 		// 위로 한 칸 올라가기
-		if (user.checkXY(user.user_x, user.user_y - 1)) { // 미리 움직였을 때 map 범위 안에 존재할 경우
+		if (user.CheckXY(user.user_x, user.user_y - 1)) { // 미리 움직였을 때 map 범위 안에 존재할 경우
 			user.user_y -= 1; // 위로 올라가기
 			cout << "위로 한 칸 올라갑니다." << endl; // 안내문 출력
-			user.displayMap(); // 지도 보여주기
-			user.print(); // 목적지 별 메세지 출력 + 체력 감소
+			user.DisplayMap(other_user); // 지도 보여주기
+			user.Print(); // 목적지 별 메세지 출력 + 체력 감소
 		}
 	}
 	else if (user_input == "s") {
 		// TODO: 아래로 한 칸 내려가기
-		if (user.checkXY(user.user_x, user.user_y + 1)) { // 미리 움직였을 때 map 범위 안에 존재할 경우
+		if (user.CheckXY(user.user_x, user.user_y + 1)) { // 미리 움직였을 때 map 범위 안에 존재할 경우
 			user.user_y += 1; // 아래로 내려가기
 			cout << "아래로 한 칸 내려갑니다." << endl; // 안내문 출력
-			user.displayMap(); // 지도 보여주기
-			user.print(); // 목적지 별 메세지 출력 + 체력 감소
+			user.DisplayMap(other_user); // 지도 보여주기
+			user.Print(); // 목적지 별 메세지 출력 + 체력 감소
 		}
 	}
 	else if (user_input == "a") {
 		// TODO: 왼쪽으로 이동하기
-		if (user.checkXY(user.user_x - 1, user.user_y)) { // 미리 움직였을 때 map 범위 안에 존재할 경우
+		if (user.CheckXY(user.user_x - 1, user.user_y)) { // 미리 움직였을 때 map 범위 안에 존재할 경우
 			user.user_x -= 1; // 왼쪽으로 이동하기
 			cout << "왼쪽으로 이동합니다." << endl; // 안내문 출력
-			user.displayMap(); // 지도 보여주기
-			user.print(); // 목적지 별 메세지 출력 + 체력 감소
+			user.DisplayMap(other_user); // 지도 보여주기
+			user.Print(); // 목적지 별 메세지 출력 + 체력 감소
 		}
 	}
 	else if (user_input == "d") {
 		// TODO: 오른쪽으로 이동하기
-		if (user.checkXY(user.user_x + 1, user.user_y)) { // 미리 움직였을 때 map 범위 안에 존재할 경우
+		if (user.CheckXY(user.user_x + 1, user.user_y)) { // 미리 움직였을 때 map 범위 안에 존재할 경우
 			user.user_x += 1; // 오른쪽으로 이동하기
 			cout << "오른쪽으로 이동합니다." << endl; // 안내문 출력
-			user.displayMap(); // 지도 보여주기
-			user.print(); // 목적지 별 메세지 출력 + 체력 감소
+			user.DisplayMap(other_user); // 지도 보여주기
+			user.Print(); // 목적지 별 메세지 출력 + 체력 감소
 		}
 	}
 	else if (user_input == "map") {
 		// TODO: 지도 보여주기 함수 호출
-		user.displayMap();
+		user.DisplayMap(other_user);
 	}
 	else if (user_input == "exit") {
 		cout << "종료합니다.";
@@ -186,7 +193,7 @@ bool User::instruction(User& user) {
 		cout << "잘못된 입력입니다." << endl;
 	}
 		// 목적지에 도달했는지 체크
-	if (user.checkGoal() == true) {
+	if (user.CheckGoal() == true) {
 		cout << "목적지에 도착했습니다! 축하합니다!" << endl;
 		cout << "게임을 종료합니다." << endl;
 		return true;
