@@ -1,13 +1,10 @@
 #include "user.h"
 
 /* 함수 정의 */
+User::User() : user_hp(20), user_item(0) {} // hp = 20, item = 0으로 설정하며 생성하는 생성자
+
 // 매지션 클래스 오버라이드
-
-// hp = 20, item = 0으로 설정하며 생성하는 생성자
-User::User() : user_hp(20), user_item(0) {}
-
-// Print 함수 : 각 상황에 맞는 메세지 출력 + 남은 HP를 반환
-int Magician::Print() {
+int Magician::Print() { // Print 함수 : 각 상황에 맞는 메세지 출력 + 남은 HP를 반환
 	DecreaseHP(1); // 움직일 때마다 HP 1 감소
 	switch(map[user_y][user_x]) { // col, row 순서
 		case 0: // 0은 빈 공간, 1은 아이템, 2는 적, 3은 포션, 4는 목적지
@@ -32,19 +29,15 @@ int Magician::Print() {
 	}
 	return GetHP(); // 남은 체력 반환
 }
-
-// HP가 0이 되면 종료를 출력하는 함수
-bool Magician::CheckUser() {
+bool Magician::CheckUser() { // HP가 0이 되면 종료를 출력하는 함수
 	bool b = true;
 	if (user_hp <= 0) {
-		cout << "[실패] 사유: ";
+		cout << "[실패]";
 		b = false;
 	}
 	return b;
 }
-
-// 지도와 사용자 위치 출력하는 함수
-void Magician::DisplayMap() {
+void Magician::DisplayMap() { // 지도와 사용자 위치 출력하는 함수
 	for (int i = 0; i < MAPY; i++) {
 		for (int j = 0; j < MAPX; j++) {
 			if (i == user_y && j == user_x) {
@@ -75,56 +68,46 @@ void Magician::DisplayMap() {
 		cout << " -------------------------------- " << endl;
 	}
 }
-
-// 이동하려는 곳이 유효한 좌표인지 체크하는 함수
-bool Magician::CheckXY(int user_x, int user_y) {
+bool Magician::CheckXY(int user_x, int user_y) { // 맵 유효성 체크하는 함수 : !!!TRY-CATCH!!!
 	bool checkFlag = false;
-	if (user_x >= 0 && user_x < MAPX && user_y >= 0 && user_y < MAPY) {
-		checkFlag = true;
+	try {
+		if (user_x < 0 || user_x >= MAPX || user_y < 0 || user_y >= MAPY) // 맵을 벗어난 경우
+			throw out_of_range(""); // 범위 초과
+		else {
+			checkFlag = true; // 올바른 움직임
+			return checkFlag;
+		}
 	}
-	else {
-		cout << "맵을 벗어났습니다. 다시 돌아갑니다." << endl;
+	catch (out_of_range& e) { // 예외 처리
+		cerr << "맵을 벗어났습니다. 다시 돌아갑니다." << endl;
+		return checkFlag; // 잘못된 움직임
 	}
-	return checkFlag;
 }
-
-// 유저의 위치가 목적지인지 체크하는 함수
-bool Magician::CheckGoal() {
+bool Magician::CheckGoal() { // 목적지인지 체크하는 함수
 	// 목적지 도착하면
 	if (map[user_y][user_x] == 4) {
+		cout << "[성공]";
 		return true;
 	}
 	return false;
 }
-
-// HP가 증가하는 함수
-void Magician::DecreaseHP(int dec_hp) {
+void Magician::DecreaseHP(int dec_hp) { // HP가 감소하는 함수
     user_hp = user_hp - dec_hp;
 }
-
-// HP가 감소하는 함수
-void Magician::IncreaseHP(int inc_hp) {
+void Magician::IncreaseHP(int inc_hp) { // HP가 증가하는 함수
     user_hp = user_hp + inc_hp;
 }
-
-// HP를 반환하는 함수
-int Magician::GetHP() {
+int Magician::GetHP() { // HP를 반환하는 함수
     return user_hp;
 }
-
-// 아이템 먹은 횟수를 저장하는 변수
-int Magician::ItemCnt() {
+int Magician::ItemCnt() { // 아이템 먹은 횟수를 저장하는 변수
 	user_item++;
 	return user_item;
 }
-
-// 각 클래스마다 doAttack함수 구현
 void Magician::DoAttack() { // 마법사 공격 재정의
 	cout << "마법 사용" << endl;
 }
-
-// 반복되는 코드를 함수화
-bool Magician::Instruction(const User& user) {
+bool Magician::Instruction(const User& user) { // 전반적 게임 진행 코드를 함수화
 	// 사용자의 입력을 저장할 변수
 	string user_input = "";
 	cout << "[현재 HP: " << GetHP() << "]" << endl;
@@ -193,7 +176,6 @@ bool Magician::Instruction(const User& user) {
 
 	return false; // false를 반환해 턴을 반복
 }
-
 void Magician::File_Read() { // 파일 읽기 재정의
 	char c; // 파일을 하나씩 읽을 변수
 	vector<int> row; // 행 벡터 생성 : 줄바꿈으로 행 구분
@@ -214,8 +196,7 @@ void Magician::File_Read() { // 파일 읽기 재정의
 	file.close(); // 파일 닫기
 }
 
-// 워리어 클래스 오버라이드
-// Print 함수 : 각 상황에 맞는 메세지 출력 + 남은 HP를 반환
+// 워리어 클래스 오버라이드 : 위와 동일
 int Warrior::Print() {
 	DecreaseHP(1); // 움직일 때마다 HP 1 감소
 	switch(map[user_y][user_x]) { // col, row 순서
@@ -241,18 +222,14 @@ int Warrior::Print() {
 	}
 	return GetHP(); // 남은 체력 반환
 }
-
-// HP가 0이 되면 종료를 출력하는 함수
 bool Warrior::CheckUser() {
 	bool b = true;
 	if (user_hp <= 0) {
-		cout << "[실패] 사유: ";
+		cout << "[실패]";
 		b = false;
 	}
 	return b;
 }
-
-// 지도와 사용자 위치 출력하는 함수
 void Warrior::DisplayMap() {
 	for (int i = 0; i < MAPY; i++) {
 		for (int j = 0; j < MAPX; j++) {
@@ -284,54 +261,45 @@ void Warrior::DisplayMap() {
 		cout << " -------------------------------- " << endl;
 	}
 }
-
-// 이동하려는 곳이 유효한 좌표인지 체크하는 함수
 bool Warrior::CheckXY(int user_x, int user_y) {
 	bool checkFlag = false;
-	if (user_x >= 0 && user_x < MAPX && user_y >= 0 && user_y < MAPY) {
-		checkFlag = true;
+	try {
+		if (user_x < 0 || user_x >= MAPX || user_y < 0 || user_y >= MAPY) // 맵을 벗어난 경우
+			throw out_of_range(""); // 범위 초과
+		else {
+			checkFlag = true; // 올바른 움직임
+			return checkFlag;
+		}
 	}
-	else {
-		cout << "맵을 벗어났습니다. 다시 돌아갑니다." << endl;
+	catch (out_of_range& e) { // 예외 처리
+		cerr << "맵을 벗어났습니다. 다시 돌아갑니다." << endl;
+		return checkFlag; // 잘못된 움직임
 	}
-	return checkFlag;
 }
-
-// 유저의 위치가 목적지인지 체크하는 함수
 bool Warrior::CheckGoal() {
 	// 목적지 도착하면
 	if (map[user_y][user_x] == 4) {
+		cout << "[성공]";
 		return true;
 	}
 	return false;
 }
-
-// HP가 증가하는 함수
 void Warrior::DecreaseHP(int dec_hp) {
     user_hp = user_hp - dec_hp;
 }
-
-// HP가 감소하는 함수
 void Warrior::IncreaseHP(int inc_hp) {
     user_hp = user_hp + inc_hp;
 }
-
-// HP를 반환하는 함수
 int Warrior::GetHP() {
     return user_hp;
 }
-
-// 아이템 먹은 횟수를 저장하는 변수
 int Warrior::ItemCnt() {
 	user_item++;
 	return user_item;
 }
-
-void Warrior::DoAttack() { // 전사 공격 재정의
+void Warrior::DoAttack() {
 	cout << "베기 사용" << endl;
 }
-
-// 반복되는 코드를 함수화
 bool Warrior::Instruction(const User& user) {
 	// 사용자의 입력을 저장할 변수
 	string user_input = "";
@@ -401,8 +369,7 @@ bool Warrior::Instruction(const User& user) {
 
 	return false; // false를 반환해 턴을 반복
 }
-
-void Warrior::File_Read() { // 파일 읽기 재정의
+void Warrior::File_Read() {
 	char c; // 파일을 하나씩 읽을 변수
 	vector<int> row; // 행 벡터 생성 : 줄바꿈으로 행 구분
 	ifstream file("map.txt");

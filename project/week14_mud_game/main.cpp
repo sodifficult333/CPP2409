@@ -28,10 +28,6 @@ int main() {
 	// 게임 시작 
 	while(1) {
 		if (user -> Instruction(*user)) {
-			if(user -> GetHP() > 0) // 체력이 0보다 많을 때 반복문 종료시
-				cout << "< 승리! >" << endl; // 승리 조건 만족
-			else // 체력이 0보다 적을 때 반복문 종료시
-				cout << "사망!" << endl; // 패배 조건 만족
 			break;
 		}
 	}
